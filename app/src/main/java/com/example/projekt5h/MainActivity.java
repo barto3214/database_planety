@@ -22,13 +22,13 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private ArrayAdapter<Planeta> array_adapter;
-    private List<Planeta> gryplanszowki;
+    private List<Planeta> gryplanety;
     Database_planety database_planety;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        binding =ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
@@ -48,20 +48,33 @@ public class MainActivity extends AppCompatActivity {
                 super.onDestructiveMigration(db);
             }
         };
+
+        binding.button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String nazwa = binding.nazwa.getText().toString();
+                int rok = Integer.valueOf(binding.spinnerRok.getSelectedItem().toString());
+                int czasdni = Integer.parseInt(binding.spinnerCzasDni.getSelectedItem().toString());
+                int miejsce = Integer.parseInt(binding.spinnerMiejsce.getSelectedItem().toString());
+                Planeta planeta = new Planeta(nazwa,rok,czasdni,miejsce);
+                dodajplanetedobazy(planeta);
+            }
+        });
         database_planety = Room.databaseBuilder(
                 MainActivity.this,
                 Database_planety.class,
                 "Planety_DB").addCallback(callback).allowMainThreadQueries().build();
+        wypiszplanety();
 
-        dodajplanetedobazy();
     }
-    private void dodajplanetedobazy(){
+    private void dodajplanetedobazy(Planeta boardgame){
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
         executorService.execute(new Runnable() {
             @Override
             public void run() {
                 database_planety.zwroc_dao_planeta().wstaw_planete(new Planeta("Jupiter",2005,370,16));
+                database_planety.zwroc_dao_planeta().wstaw_planete(boardgame);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -71,6 +84,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+private void wypiszplanety(){
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    Handler handler = new Handler(Looper.getMainLooper());
+    executorService.execute(new Runnable() {
+        @Override
+        public void run() {
+            gryplanety = database_planety.zwroc_dao_planeta().zwroc_planety();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    array_adapter = new ArrayAdapter<>(
+                            MainActivity.this,
+                            android.R.layout.simple_list_item_1,
+                            gryplanety
+                    );
+                    binding.listveiw.setAdapter(array_adapter);
+                }
 
 
-    }
+                }
+            );
+        }
+    });
+}
+}

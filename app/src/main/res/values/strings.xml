@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">Projekt5H</string>
+    <string-array name="rok">
+        <item>2025</item>
+        <item>2026</item>
+        <item>2027</item>
+        <item>2027</item>
+        <item>2028</item>
+        <item>2029</item>
+        <item>2030</item>
+    </string-array>
+    <string-array name="dni">
+        <item>365</item>
+        <item>200</item>
+        <item>584</item>
+        <item>723</item>
+        <item>924</item>
+        <item>910</item>
+        <item>2030</item>
+    </string-array>
+    <string-array name="miejsce">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
 </resources>
