@@ -2,6 +2,7 @@ package com.example.projekt5h;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -48,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
                 super.onDestructiveMigration(db);
             }
         };
-
         binding.button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,13 +59,50 @@ public class MainActivity extends AppCompatActivity {
                 int miejsce = Integer.parseInt(binding.spinnerMiejsce.getSelectedItem().toString());
                 Planeta planeta = new Planeta(nazwa,rok,czasdni,miejsce);
                 dodajplanetedobazy(planeta);
+                array_adapter.notifyDataSetChanged();
+            }
+        });
+
+        binding.buttonWyszukaj.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                Handler handler = new Handler(Looper.getMainLooper());
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        int rok = Integer.valueOf(binding.spinnerRok.getSelectedItem().toString());             //to nie działa
+                        gryplanety = database_planety.zwroc_dao_planeta().zwroc_planety_rok(rok);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                array_adapter = new ArrayAdapter<>(
+                                        MainActivity.this,
+                                        android.R.layout.simple_list_item_1,
+                                        gryplanety
+                                );
+                                binding.listveiw.setAdapter(array_adapter);
+                            }
+                        });
+
+                    }
+                });
+            }
+        });
+
+        binding.listveiw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                database_planety.zwroc_dao_planeta().usun_planete(gryplanety.get(i));
+                gryplanety.remove(i);
+                array_adapter.notifyDataSetChanged();
             }
         });
         database_planety = Room.databaseBuilder(
                 MainActivity.this,
                 Database_planety.class,
                 "Planety_DB").addCallback(callback).allowMainThreadQueries().build();
-        wypiszplanety();
+
 
     }
     private void dodajplanetedobazy(Planeta boardgame){
@@ -84,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 private void wypiszplanety(){
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     Handler handler = new Handler(Looper.getMainLooper());

@@ -68,4 +68,13 @@ public class Planeta {
     public void setMiejsce_od_gwiazdy(int miejsce_od_gwiazdy) {
         this.miejsce_od_gwiazdy = miejsce_od_gwiazdy;
     }
+
+    @Override
+    public String toString() {
+        return  nazwa + " rok odkrycia: "
+                + rok_odkrycia + " czas okrążenia gwiazdy w dniach: "
+                + czasDni + " miejesce od gwiazdy: "
+                 + miejsce_od_gwiazdy
+                ;
+    }
 }
