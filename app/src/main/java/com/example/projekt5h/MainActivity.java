@@ -66,27 +66,8 @@ public class MainActivity extends AppCompatActivity {
         binding.buttonWyszukaj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                Handler handler = new Handler(Looper.getMainLooper());
-                executorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        int rok = Integer.valueOf(binding.spinnerRok.getSelectedItem().toString());             //to nie działa
-                        gryplanety = database_planety.zwroc_dao_planeta().zwroc_planety_rok(rok);
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                array_adapter = new ArrayAdapter<>(
-                                        MainActivity.this,
-                                        android.R.layout.simple_list_item_1,
-                                        gryplanety
-                                );
-                                binding.listveiw.setAdapter(array_adapter);
-                            }
-                        });
-
-                    }
-                });
+                int rok = Integer.valueOf(binding.spinnerRok.getSelectedItem().toString());
+                selwhere(rok);
             }
         });
 
@@ -98,11 +79,20 @@ public class MainActivity extends AppCompatActivity {
                 array_adapter.notifyDataSetChanged();
             }
         });
+        binding.buttonzmien.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int id = Integer.parseInt(binding.spinnerId.getSelectedItem().toString());
+                int miejsce = Integer.parseInt(binding.spinnerMiejsce.getSelectedItem().toString());
+                updatnij(id,miejsce);
+            }
+        });
+
         database_planety = Room.databaseBuilder(
                 MainActivity.this,
                 Database_planety.class,
                 "Planety_DB").addCallback(callback).allowMainThreadQueries().build();
-
+        wypiszplanety();
 
     }
     private void dodajplanetedobazy(Planeta boardgame){
@@ -145,6 +135,55 @@ private void wypiszplanety(){
 
                 }
             );
+        }
+    });
+}
+private void selwhere(int rok){
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    Handler handler = new Handler(Looper.getMainLooper());
+    executorService.execute(new Runnable() {
+        @Override
+        public void run() {
+            gryplanety = database_planety.zwroc_dao_planeta().zwroc_planety_rok(rok);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    array_adapter = new ArrayAdapter<>(
+                            MainActivity.this,
+                            android.R.layout.simple_list_item_1,
+                            gryplanety
+                    );
+                    binding.listveiw.setAdapter(array_adapter);
+                }
+            });
+
+        }
+    });
+}
+private void updatnij(int id, int wartosc){
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    Handler handler = new Handler(Looper.getMainLooper());
+    executorService.execute(new Runnable() {
+        @Override
+        public void run() {
+            List<Planeta> planety2 = database_planety.zwroc_dao_planeta().zwroc_planety_id(id);
+
+            for(Planeta planeta : planety2){
+                planeta.setMiejsce_od_gwiazdy(wartosc);
+                database_planety.zwroc_dao_planeta().zaktualizuj_planete(planeta);
+            }
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    array_adapter = new ArrayAdapter<>(
+                            MainActivity.this,
+                            android.R.layout.simple_list_item_1,
+                            gryplanety
+                    );
+                    binding.listveiw.setAdapter(array_adapter);
+                }
+            });
         }
     });
 }

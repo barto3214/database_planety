@@ -24,4 +24,7 @@ public interface dao_planeta {
 
     @Query("SELECT * FROM planety WHERE rok_odkrycia = :rok_teraz")
     public List<Planeta> zwroc_planety_rok(int rok_teraz);
+
+    @Query("SELECT * FROM planety WHERE id = :ids")
+    public List<Planeta> zwroc_planety_id(int ids);
 }
