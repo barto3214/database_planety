@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<Planeta> array_adapter;
     private List<Planeta> gryplanety;
     Database_planety database_planety;
+    Database_uklady db_uklady;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +93,13 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this,
                 Database_planety.class,
                 "Planety_DB").addCallback(callback).allowMainThreadQueries().build();
-        wypiszplanety();
 
+        db_uklady = Room.databaseBuilder(getApplicationContext(),
+                        Database_uklady.class, "my-database")
+                .fallbackToDestructiveMigration()
+                .build();
+
+        wypiszplanety();
     }
     private void dodajplanetedobazy(Planeta boardgame){
         ExecutorService executorService = Executors.newSingleThreadExecutor();
